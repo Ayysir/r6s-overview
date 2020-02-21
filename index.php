@@ -17,6 +17,7 @@ $list = $stmt->fetchAll();
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
     <title>r6s</title>
     <style media="screen">
       body {
@@ -70,7 +71,7 @@ $list = $stmt->fetchAll();
     </style>
   </head>
   <body>
-    <form class="search nickname" action="">
+    <form class="search nickname">
        <input type="text" name="nickname" value="" placeholder="Search...">
     </form>
     <?php
@@ -80,7 +81,6 @@ $list = $stmt->fetchAll();
 
       $profile_id = array_keys($row['players'])[0];
       $overview = $row['players'][$profile_id];
-
       $xp = $row['players'][$profile_id]['xp'];
       $lootbox_probability = $row['players'][$profile_id]['lootbox_probability'];
       $level = $row['players'][$profile_id]['level'];
@@ -116,7 +116,9 @@ $list = $stmt->fetchAll();
     <div class='container'>
       <!-- // 에러 수신시 에러 출력 -->
       <?php if (!empty($error)) {
-        echo $error;
+        $nickname = $error."\n".$profile_id;
+        $rankInfoImage = "https://r6tab.com/images/pngranks/0.png?x=3";
+        $rankInfoName = "Unranked";
       }
       ?>
       <div class='overview'>
@@ -162,7 +164,9 @@ $list = $stmt->fetchAll();
 <?php
 // get 방식으로 요청시 해당 닉네임으로 정보 찾기
 if ($_GET['nickname'] != null) {
+  //javascript로 오버레이에 찾는중 표시
   getUser($_GET['nickname'], $dbh);
+  echo ("<script>alert('Finish');location.href='/';</script>") ;
 }
 
 //전적 player api 에 요청

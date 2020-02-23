@@ -47,26 +47,23 @@ $list = $playersAll->fetchAll();
         background-color: #1a1d22;
         font-family: 'Francois One';
       }
-      img {
-        width: 100%;
-      }
+
       .container {
         padding: 0.5em;
         margin: 0.5em;
         background-color: rgba(41,44,51,.25);
         border-radius: 15px;
         opacity: 0.85;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+
       }
       /* container 애니메이션 */
       .container {
         animation-name: containerAppend;
         animation-duration: 1.5s;
         /* animation-iteration-count: infinite; */
-      }
-      .content {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
       }
       @keyframes containerAppend {
         from { margin-bottom: 80%; opacity: 0.3; }
@@ -148,50 +145,42 @@ $list = $playersAll->fetchAll();
         $rankInfoName = "Unranked";
       }
       ?>
-      <div class='header'>
+      <div class='overview'>
         <H1 class='nickname'><?php echo $nickname?></H1>
+        <!-- players stats-->
+        <table style='text-align: center;'>
+          <tr>
+            <th>WINS</th>
+            <th>LOSSES</th>
+            <th>KILLS</th>
+            <th>DEATHS</th>
+            <th>MMR</th>
+          </tr>
+          <tr>
+            <td><?php echo $wins.'<br>('.$rows['rank_wins'].'위 '.$rows['pct_wins'].'%)'?></td>
+            <td><?php echo $losses.'<br>('.$rows['rank_losses'].'위 '.$rows['pct_losses'].'%)'?></td>
+            <td><?php echo $kills.'<br>('.$rows['rank_kills'].'위 '.$rows['pct_kills'].'%)'?></td>
+            <td><?php echo $deaths.'<br>('.$rows['rank_deaths'].'위 '.$rows['pct_deaths'].'%)'?></td>
+            <td><?php echo $mmr.'<br>('.$rows['rank_mmr'].'위 '.$rows['pct_mmr'].'%)'?></td>
+          </tr>
+        </table>
+        <!-- players basic-->
+        <table style='text-align: center;'>
+          <tr>
+            <th>LEVEL</th>
+            <th>XP</th>
+          </tr>
+          <tr>
+            <td><?php echo $level.'<br>('.$rows['rank_level'].'위 '.$rows['pct_level'].'%)'?></td>
+            <td><?php echo $xp.'<br>('.$rows['rank_xp'].'위 '.$rows['pct_xp'].'%)'?></td>
+          </tr>
+        </table>
       </div>
-      <div class='content'>
-        <div class='stats'>
-          <!-- players stats-->
-          <table style='text-align: center;'>
-            <tr>
-              <th>WINS</th>
-              <th>LOSSES</th>
-              <th>KILLS</th>
-              <th>DEATHS</th>
-              <th>MMR</th>
-            </tr>
-            <tr>
-              <td><?php echo $wins.'<br>('.$rows['rank_wins'].'위 '.$rows['pct_wins'].'%)'?></td>
-              <td><?php echo $losses.'<br>('.$rows['rank_losses'].'위 '.$rows['pct_losses'].'%)'?></td>
-              <td><?php echo $kills.'<br>('.$rows['rank_kills'].'위 '.$rows['pct_kills'].'%)'?></td>
-              <td><?php echo $deaths.'<br>('.$rows['rank_deaths'].'위 '.$rows['pct_deaths'].'%)'?></td>
-              <td><?php echo $mmr.'<br>('.$rows['rank_mmr'].'위 '.$rows['pct_mmr'].'%)'?></td>
-            </tr>
-            <tr>
-              <th>LEVEL</th>
-              <th>XP</th>
-            </tr>
-            <tr>
-              <td><?php echo $level.'<br>('.$rows['rank_level'].'위 '.$rows['pct_level'].'%)'?></td>
-              <td><?php echo $xp.'<br>('.$rows['rank_xp'].'위 '.$rows['pct_xp'].'%)'?></td>
-            </tr>
-          </table>
-        </div>
-        <div class='rankInfo'>
-          <table style='text-align: center;'>
-            <tr>
-              <th><?php echo 'season '.$season.' | '.$region.' | '.$platform ?></th>
-            </tr>
-            <tr>
-              <td><img src=<?php echo $rankInfoImage ?>></td>
-            </tr>
-            <tr>
-              <td><?php echo $rankInfoName ?></td>
-            </tr>
-          </table>
-        </div>
+
+      <div class='rankInfo' style='display: flex; flex-direction: column; align-items: center; justify-content: center;'>
+        <?php echo 'season '.$season.' | '.$region.' | '.$platform ?>
+        <img class='rankInfo-image' style='width: 10em' src=<?php echo $rankInfoImage ?>>
+        <?php echo $rankInfoName ?>
       </div>
     </div>
   <?php }

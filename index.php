@@ -5,11 +5,32 @@ try {
   echo $e->getMessage();
 }
 
+/*
+검색 아래에 버튼을 두고 최고mmr, 최고 승 등등 통계 버튼 두고 DESC 로 정렬
+닉네임 검새하면 검색한것이 최 상단으로 이동
+*/
+
 //50개 플레이어 데이터 가져옴
-//profile_id를 기준으로 중복없이 출력
-$stmt = $dbh->prepare('SELECT DISTINCT profile_id, json FROM players ORDER BY id DESC LIMIT 50');
-$stmt->execute();
-$list = $stmt->fetchAll();
+//전체 players
+$playersAll = $dbh->prepare('SELECT
+  * ,
+  RANK() OVER (order by mmr DESC) AS rank_mmr ,
+  ROUND(PERCENT_RANK() OVER (ORDER BY mmr DESC),1)*10 AS pct_mmr,
+  RANK() OVER (order by wins DESC) AS rank_wins ,
+  ROUND(PERCENT_RANK() OVER (ORDER BY wins DESC),1)*10 AS pct_wins,
+  RANK() OVER (order by losses DESC) AS rank_losses ,
+  ROUND(PERCENT_RANK() OVER (ORDER BY losses DESC),1)*10 AS pct_losses,
+  RANK() OVER (order by kills DESC) AS rank_kills ,
+  ROUND(PERCENT_RANK() OVER (ORDER BY kills DESC),1)*10 AS pct_kills,
+  RANK() OVER (order by deaths DESC) AS rank_deaths ,
+  ROUND(PERCENT_RANK() OVER (ORDER BY deaths DESC),1)*10 AS pct_deaths,
+  RANK() OVER (order by level DESC) AS rank_level ,
+  ROUND(PERCENT_RANK() OVER (ORDER BY level DESC),1)*10 AS pct_level,
+  RANK() OVER (order by deaths DESC) AS rank_deaths ,
+  ROUND(PERCENT_RANK() OVER (ORDER BY xp DESC),1)*10 AS pct_xp
+  FROM players ORDER BY id DESC LIMIT 50');
+$playersAll->execute();
+$list = $playersAll->fetchAll();
 
 ?>
 
@@ -17,12 +38,17 @@ $list = $stmt->fetchAll();
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Francois+One&display=swap" rel="stylesheet">
     <title>r6s</title>
     <style media="screen">
       body {
         color: #f5f5f5;
         background-color: #1a1d22;
+        font-family: 'Francois One';
+      }
+      img {
+        width: 100%;
       }
       .container {
         padding: 0.5em;
@@ -30,16 +56,17 @@ $list = $stmt->fetchAll();
         background-color: rgba(41,44,51,.25);
         border-radius: 15px;
         opacity: 0.85;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-
       }
       /* container 애니메이션 */
       .container {
         animation-name: containerAppend;
         animation-duration: 1.5s;
         /* animation-iteration-count: infinite; */
+      }
+      .content {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
       }
       @keyframes containerAppend {
         from { margin-bottom: 80%; opacity: 0.3; }
@@ -121,37 +148,50 @@ $list = $stmt->fetchAll();
         $rankInfoName = "Unranked";
       }
       ?>
-      <div class='overview'>
+      <div class='header'>
         <H1 class='nickname'><?php echo $nickname?></H1>
-        <table style='text-align: center;'>
-          <tr>
-            <th>Wins</th>
-            <th>Losses</th>
-            <th>Kills</th>
-            <th>Deaths</th>
-          </tr>
-          <tr>
-            <td><?php echo $wins?></td>
-            <td><?php echo $losses?></td>
-            <td><?php echo $kills?></td>
-            <td><?php echo $deaths?></td>
-          </tr>
-          <tr>
-            <th>mmr</th>
-            <th>max mmr</th>
-            <th>pre mmr<th>
-          </tr>
-          <tr>
-            <td><?php echo $mmr?></td>
-            <td><?php echo $max_mmr?></td>
-            <td><?php echo $previous_rank_mmr?></td>
-          </tr>
-        </table>
       </div>
-
-      <div class='rankInfo'>
-        <img class='rankInfo-image'style='width: 200px' src=<?php echo $rankInfoImage ?>>
-        <h2 style='text-align:center;'><?php echo $rankInfoName ?></h2>
+      <div class='content'>
+        <div class='stats'>
+          <!-- players stats-->
+          <table style='text-align: center;'>
+            <tr>
+              <th>WINS</th>
+              <th>LOSSES</th>
+              <th>KILLS</th>
+              <th>DEATHS</th>
+              <th>MMR</th>
+            </tr>
+            <tr>
+              <td><?php echo $wins.'<br>('.$rows['rank_wins'].'위 '.$rows['pct_wins'].'%)'?></td>
+              <td><?php echo $losses.'<br>('.$rows['rank_losses'].'위 '.$rows['pct_losses'].'%)'?></td>
+              <td><?php echo $kills.'<br>('.$rows['rank_kills'].'위 '.$rows['pct_kills'].'%)'?></td>
+              <td><?php echo $deaths.'<br>('.$rows['rank_deaths'].'위 '.$rows['pct_deaths'].'%)'?></td>
+              <td><?php echo $mmr.'<br>('.$rows['rank_mmr'].'위 '.$rows['pct_mmr'].'%)'?></td>
+            </tr>
+            <tr>
+              <th>LEVEL</th>
+              <th>XP</th>
+            </tr>
+            <tr>
+              <td><?php echo $level.'<br>('.$rows['rank_level'].'위 '.$rows['pct_level'].'%)'?></td>
+              <td><?php echo $xp.'<br>('.$rows['rank_xp'].'위 '.$rows['pct_xp'].'%)'?></td>
+            </tr>
+          </table>
+        </div>
+        <div class='rankInfo'>
+          <table style='text-align: center;'>
+            <tr>
+              <th><?php echo 'season '.$season.' | '.$region.' | '.$platform ?></th>
+            </tr>
+            <tr>
+              <td><img src=<?php echo $rankInfoImage ?>></td>
+            </tr>
+            <tr>
+              <td><?php echo $rankInfoName ?></td>
+            </tr>
+          </table>
+        </div>
       </div>
     </div>
   <?php }
@@ -166,7 +206,7 @@ $list = $stmt->fetchAll();
 if ($_GET['nickname'] != null) {
   //javascript로 오버레이에 찾는중 표시
   getUser($_GET['nickname'], $dbh);
-  echo ("<script>alert('Finish');location.href='/';</script>") ;
+  echo ("<script>alert('Finish');location.href='/';</script>");
 }
 
 //전적 player api 에 요청
@@ -176,9 +216,16 @@ function getUser ($nickname, $dbh) {
   $row = json_decode($getUser, true);
   $profile_id = array_keys($row['players'])[0];
 
-  $InsertGetUser = $dbh->prepare("INSERT INTO players (profile_id, json) VALUES (:profile_id, :json)");
+  $InsertGetUser = $dbh->prepare("INSERT INTO players (profile_id, mmr, wins, losses, kills, deaths, level, xp, json) VALUES (:profile_id, :mmr, :wins, :losses, :kills, :deaths, :level, :xp, :json)");
   $InsertGetUser->bindParam(':json',$getUser);
   $InsertGetUser->bindParam(':profile_id',$profile_id);
+  $InsertGetUser->bindParam(':mmr', $row['players'][$profile_id]['mmr']);
+  $InsertGetUser->bindParam(':wins', $row['players'][$profile_id]['wins']);
+  $InsertGetUser->bindParam(':losses', $row['players'][$profile_id]['losses']);
+  $InsertGetUser->bindParam(':kills', $row['players'][$profile_id]['kills']);
+  $InsertGetUser->bindParam(':deaths', $row['players'][$profile_id]['deaths']);
+  $InsertGetUser->bindParam(':level', $row['players'][$profile_id]['level']);
+  $InsertGetUser->bindParam(':xp', $row['players'][$profile_id]['xp']);
   $InsertGetUser->execute();
   return $getUser;
 }

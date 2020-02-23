@@ -26,7 +26,7 @@ $playersAll = $dbh->prepare('SELECT
   ROUND(PERCENT_RANK() OVER (ORDER BY deaths DESC),1)*10 AS pct_deaths,
   RANK() OVER (order by level DESC) AS rank_level ,
   ROUND(PERCENT_RANK() OVER (ORDER BY level DESC),1)*10 AS pct_level,
-  RANK() OVER (order by deaths DESC) AS rank_deaths ,
+  RANK() OVER (order by xp DESC) AS rank_xp ,
   ROUND(PERCENT_RANK() OVER (ORDER BY xp DESC),1)*10 AS pct_xp
   FROM players ORDER BY id DESC LIMIT 50');
 $playersAll->execute();
@@ -38,8 +38,11 @@ $list = $playersAll->fetchAll();
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=0.73">
     <link href="https://fonts.googleapis.com/css?family=Francois+One&display=swap" rel="stylesheet">
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <link rel="stylesheet" href="./css/billboard.css">
+    <script src="./js/billboard.js"></script>
     <title>r6s</title>
     <style media="screen">
       body {
@@ -136,20 +139,11 @@ $list = $playersAll->fetchAll();
       $rankInfoImage = $overview['rankInfo']['image'];
       $rankInfoName = $overview['rankInfo']['name'];
       $error = $overview['error']['message'];
-
-      //player당 정보
-      $playerDetail = $dbh->prepare("SELECT * FROM players WHERE profile_id = :profile_id");
-      $playerDetail->bindParam(':profile_id',$profile_id);
-      $playerDetail->execute();
-      $playerDetalList = $playerDetail->fetchAll();
-      foreach ($playerDetalList as $rows) {
-        $mmrList[] = $rows['mmr'];
-      }
     ?>
     <div class='container'>
       <!-- // 에러 수신시 에러 출력 -->
       <?php if (!empty($error)) {
-        $nickname = $error."\n".$profile_id;
+        $nickname = $error."\n".substr($profile_id, 0, 10)."...";
         $rankInfoImage = "https://r6tab.com/images/pngranks/0.png?x=3";
         $rankInfoName = "Unranked";
       }
@@ -201,7 +195,7 @@ $list = $playersAll->fetchAll();
 if ($_GET['nickname'] != null) {
   //javascript로 오버레이에 찾는중 표시
   getUser($_GET['nickname'], $dbh);
-  echo ("<script>alert('Finish');location.href='/';</script>");
+  echo ("<script>location.href='/';</script>");
 }
 
 //전적 player api 에 요청

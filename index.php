@@ -136,6 +136,15 @@ $list = $playersAll->fetchAll();
       $rankInfoImage = $overview['rankInfo']['image'];
       $rankInfoName = $overview['rankInfo']['name'];
       $error = $overview['error']['message'];
+
+      //player당 정보
+      $playerDetail = $dbh->prepare("SELECT * FROM players WHERE profile_id = :profile_id");
+      $playerDetail->bindParam(':profile_id',$profile_id);
+      $playerDetail->execute();
+      $playerDetalList = $playerDetail->fetchAll();
+      foreach ($playerDetalList as $rows) {
+        $mmrList[] = $rows['mmr'];
+      }
     ?>
     <div class='container'>
       <!-- // 에러 수신시 에러 출력 -->
@@ -157,22 +166,19 @@ $list = $playersAll->fetchAll();
             <th>MMR</th>
           </tr>
           <tr>
-            <td><?php echo $wins.'<br>('.$rows['rank_wins'].'위 '.$rows['pct_wins'].'%)'?></td>
-            <td><?php echo $losses.'<br>('.$rows['rank_losses'].'위 '.$rows['pct_losses'].'%)'?></td>
-            <td><?php echo $kills.'<br>('.$rows['rank_kills'].'위 '.$rows['pct_kills'].'%)'?></td>
-            <td><?php echo $deaths.'<br>('.$rows['rank_deaths'].'위 '.$rows['pct_deaths'].'%)'?></td>
-            <td><?php echo $mmr.'<br>('.$rows['rank_mmr'].'위 '.$rows['pct_mmr'].'%)'?></td>
+            <td><?php echo $wins.'<br>TOP '.$rows['rank_wins'].' '.$rows['pct_wins'].'%'?></td>
+            <td><?php echo $losses.'<br>TOP '.$rows['rank_losses'].' '.$rows['pct_losses'].'%'?></td>
+            <td><?php echo $kills.'<br>TOP '.$rows['rank_kills'].' '.$rows['pct_kills'].'%'?></td>
+            <td><?php echo $deaths.'<br>TOP '.$rows['rank_deaths'].' '.$rows['pct_deaths'].'%'?></td>
+            <td><?php echo $mmr.'<br>TOP '.$rows['rank_mmr'].' '.$rows['pct_mmr'].'%'?></td>
           </tr>
-        </table>
-        <!-- players basic-->
-        <table style='text-align: center;'>
           <tr>
             <th>LEVEL</th>
             <th>XP</th>
           </tr>
           <tr>
-            <td><?php echo $level.'<br>('.$rows['rank_level'].'위 '.$rows['pct_level'].'%)'?></td>
-            <td><?php echo $xp.'<br>('.$rows['rank_xp'].'위 '.$rows['pct_xp'].'%)'?></td>
+            <td><?php echo $level.'<br>TOP '.$rows['rank_level'].' '.$rows['pct_level'].'%'?></td>
+            <td><?php echo $xp.'<br>TOP '.$rows['rank_xp'].' '.$rows['pct_xp'].'%'?></td>
           </tr>
         </table>
       </div>
